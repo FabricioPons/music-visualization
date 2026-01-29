@@ -1,0 +1,1013 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Evolution of Music: A Data Journey Through Decades</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0a0e1a;
+            --bg-secondary: #1a1f35;
+            --bg-card: #252b42;
+            --text-primary: #e8eaf0;
+            --text-secondary: #9ca3af;
+            --accent-1: #00d9ff;
+            --accent-2: #ff006e;
+            --accent-3: #8338ec;
+            --accent-4: #ffbe0b;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        @keyframes gradientFlow {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        body {
+            font-family: 'JetBrains Mono', monospace;
+            background: linear-gradient(-45deg, #0a0e1a, #1a1035, #0d1221, #1a0e2e);
+            background-size: 400% 400%;
+            animation: gradientFlow 15s ease infinite;
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(0, 217, 255, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255, 0, 110, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 50% 50%, rgba(131, 56, 236, 0.05) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 60px;
+            animation: fadeInUp 0.8s ease-out;
+        }
+
+        h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(2.5rem, 5vw, 4.5rem);
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--accent-1), var(--accent-2), var(--accent-3));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 20px;
+            letter-spacing: -0.02em;
+            animation: shimmer 3s ease-in-out infinite;
+            background-size: 200% auto;
+        }
+
+        @keyframes shimmer {
+            0%, 100% { background-position: 0% center; }
+            50% { background-position: 100% center; }
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            max-width: 800px;
+            margin: 0 auto 10px;
+            line-height: 1.8;
+            opacity: 0;
+            animation: fadeIn 1s ease-out 0.3s forwards;
+        }
+
+        @keyframes fadeIn {
+            to { opacity: 1; }
+        }
+
+        .dataset-info {
+            display: inline-block;
+            background: var(--bg-secondary);
+            padding: 12px 24px;
+            border-radius: 8px;
+            margin-top: 20px;
+            border-left: 3px solid var(--accent-1);
+            font-size: 0.9rem;
+            opacity: 0;
+            animation: fadeInUp 0.8s ease-out 0.5s forwards;
+            box-shadow: 0 4px 20px rgba(0, 217, 255, 0.1);
+        }
+
+        .controls {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-bottom: 40px;
+            animation: fadeInUp 0.8s ease-out 0.2s backwards;
+        }
+
+        .control-group {
+            background: var(--bg-card);
+            padding: 15px 25px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            border: 1px solid rgba(0, 217, 255, 0.1);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .control-group::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0, 217, 255, 0.1), transparent);
+            transition: left 0.5s;
+        }
+
+        .control-group:hover::before {
+            left: 100%;
+        }
+
+        .control-group:hover {
+            border-color: var(--accent-1);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(0, 217, 255, 0.2);
+        }
+
+        label {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--accent-1);
+            font-weight: 700;
+        }
+
+        select {
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 8px 15px;
+            border-radius: 6px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-width: 180px;
+        }
+
+        select:hover, select:focus {
+            border-color: var(--accent-1);
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(0, 217, 255, 0.1);
+        }
+
+        .charts-grid {
+            display: grid;
+            gap: 30px;
+            animation: fadeInUp 0.8s ease-out 0.4s backwards;
+        }
+
+        .chart-card {
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 30px;
+            border: 1px solid rgba(0, 217, 255, 0.1);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .chart-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent-1), var(--accent-2), var(--accent-3), var(--accent-4));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .chart-card:hover::before {
+            opacity: 1;
+        }
+
+        .chart-card:hover {
+            border-color: rgba(0, 217, 255, 0.3);
+            transform: translateY(-5px);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        }
+
+        .chart-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8rem;
+            margin-bottom: 15px;
+            color: var(--text-primary);
+            font-weight: 700;
+        }
+
+        .chart-description {
+            color: var(--text-secondary);
+            margin-bottom: 25px;
+            line-height: 1.6;
+            font-size: 0.95rem;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 450px;
+            margin-bottom: 20px;
+        }
+
+        .chart-loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .chart-loading.active {
+            opacity: 1;
+        }
+
+        .interpretation {
+            background: rgba(0, 217, 255, 0.05);
+            border-left: 3px solid var(--accent-1);
+            padding: 20px;
+            margin-top: 25px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            line-height: 1.7;
+            transition: all 0.3s ease;
+        }
+
+        .interpretation:hover {
+            background: rgba(0, 217, 255, 0.08);
+            transform: translateX(5px);
+        }
+
+        .interpretation strong {
+            color: var(--accent-1);
+            display: block;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            font-size: 0.85rem;
+        }
+
+        .metric-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, var(--accent-3), var(--accent-2));
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            margin: 0 5px;
+            font-weight: 700;
+            transition: transform 0.3s ease;
+        }
+
+        .metric-badge:hover {
+            transform: scale(1.05);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: rgba(0, 217, 255, 0.05);
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid rgba(0, 217, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            border-color: var(--accent-1);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(0, 217, 255, 0.15);
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 8px;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid rgba(0, 217, 255, 0.1);
+            border-top-color: var(--accent-1);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px 10px;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .controls {
+                flex-direction: column;
+            }
+            
+            .control-group {
+                width: 100%;
+            }
+
+            .chart-container {
+                height: 300px;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>The Evolution of Music</h1>
+            <p class="subtitle">
+                A data-driven exploration of how musical characteristics have transformed from the 1960s to today, 
+                revealing patterns in danceability, energy, valence, and more across different genres.
+            </p>
+            <div class="dataset-info">
+                <strong>Dataset:</strong> Synthetic Spotify-style music data | 
+                <strong>Tracks:</strong> 5,000 | 
+                <strong>Years:</strong> 1960-2024 | 
+                <strong>Genres:</strong> 15
+            </div>
+        </div>
+
+        <div class="stats-grid" id="statsGrid">
+            <div class="stat-card">
+                <div class="stat-label">Avg Danceability</div>
+                <div class="stat-value" id="avgDance">0.636</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Avg Energy</div>
+                <div class="stat-value" id="avgEnergy">0.524</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Avg Valence</div>
+                <div class="stat-value" id="avgValence">0.501</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Most Popular Genre</div>
+                <div class="stat-value" id="topGenre">Electronic</div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <div class="control-group">
+                <label for="genreFilter">Filter by Genre</label>
+                <select id="genreFilter">
+                    <option value="all">All Genres</option>
+                </select>
+            </div>
+            <div class="control-group">
+                <label for="metricSelect">Compare Metric</label>
+                <select id="metricSelect">
+                    <option value="danceability">Danceability</option>
+                    <option value="energy">Energy</option>
+                    <option value="valence">Valence (Happiness)</option>
+                    <option value="acousticness">Acousticness</option>
+                    <option value="popularity">Popularity</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="charts-grid">
+            <div class="chart-card">
+                <h2 class="chart-title">Temporal Evolution</h2>
+                <p class="chart-description">
+                    Track how musical characteristics have evolved decade by decade from the 1960s through today. 
+                    Filter by genre to see specific trends, or view all genres for the complete picture.
+                </p>
+                <div class="chart-container">
+                    <canvas id="timelineChart"></canvas>
+                    <div class="chart-loading">
+                        <div class="loading-spinner"></div>
+                    </div>
+                </div>
+                <div class="interpretation">
+                    <strong>Key Insight:</strong>
+                    Music has become significantly more <span class="metric-badge">danceable</span> (+40%) and 
+                    <span class="metric-badge">energetic</span> (+62%) over time, while 
+                    <span class="metric-badge">acousticness</span> has declined (-43%). This reflects the shift from 
+                    acoustic instruments to electronic production, and the increasing importance of rhythm in popular music.
+                </div>
+            </div>
+
+            <div class="chart-card">
+                <h2 class="chart-title">Genre Audio Fingerprint</h2>
+                <p class="chart-description">
+                    Each genre has a unique sonic signature. This radar chart reveals the multi-dimensional audio profile 
+                    across five key characteristics. Select a genre to dive deep into its distinctive sound.
+                </p>
+                <div class="chart-container">
+                    <canvas id="radarChart"></canvas>
+                    <div class="chart-loading">
+                        <div class="loading-spinner"></div>
+                    </div>
+                </div>
+                <div class="interpretation">
+                    <strong>Key Insight:</strong>
+                    <span class="metric-badge">Electronic</span> excels in danceability and energy, 
+                    <span class="metric-badge">Metal</span> shows extreme energy with lower valence (darker mood), 
+                    <span class="metric-badge">Classical</span> is highly acoustic but least danceable, and
+                    <span class="metric-badge">Hip-Hop</span> balances high danceability with moderate energy.
+                </div>
+            </div>
+
+            <div class="chart-card">
+                <h2 class="chart-title">Genre Comparison Rankings</h2>
+                <p class="chart-description">
+                    Compare all genres across different musical dimensions. Use the metric selector above to switch 
+                    between danceability, energy, valence, acousticness, and popularity.
+                </p>
+                <div class="chart-container">
+                    <canvas id="genreChart"></canvas>
+                    <div class="chart-loading">
+                        <div class="loading-spinner"></div>
+                    </div>
+                </div>
+                <div class="interpretation">
+                    <strong>Key Insight:</strong>
+                    The distribution reveals distinct clusters: <span class="metric-badge">Dance-oriented genres</span> 
+                    (Electronic, Hip-Hop, Reggae) score above 0.70 in danceability, while 
+                    <span class="metric-badge">Traditional genres</span> (Classical, Jazz, Folk) maintain acoustic roots. 
+                    Genre popularity correlates with recency, not just audio features.
+                </div>
+            </div>
+
+            <div class="chart-card">
+                <h2 class="chart-title">Feature Correlation Scatter</h2>
+                <p class="chart-description">
+                    Explore the relationship between energy and danceability. Each point represents a genre's average 
+                    characteristics. Hover over points to see detailed information and discover patterns.
+                </p>
+                <div class="chart-container">
+                    <canvas id="scatterChart"></canvas>
+                    <div class="chart-loading">
+                        <div class="loading-spinner"></div>
+                    </div>
+                </div>
+                <div class="interpretation">
+                    <strong>Key Insight:</strong>
+                    A strong positive correlation exists between energy and danceability. Genres cluster into distinct groups:
+                    high-energy dance music (electronic, hip-hop), moderate rock/pop, and low-energy acoustic genres (classical, jazz).
+                    This clustering reveals fundamental structural differences in how genres approach rhythm and intensity.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Full dataset for filtering
+        const fullData = {
+            "pop": {"decade_data": [{"decade": 1960, "danceability": 0.45, "energy": 0.35, "valence": 0.48, "acousticness": 0.32, "popularity": 2}, {"decade": 1970, "danceability": 0.48, "energy": 0.38, "valence": 0.46, "acousticness": 0.30, "popularity": 4}, {"decade": 1980, "danceability": 0.52, "energy": 0.42, "valence": 0.50, "acousticness": 0.26, "popularity": 6}, {"decade": 1990, "danceability": 0.58, "energy": 0.48, "valence": 0.52, "acousticness": 0.22, "popularity": 10}, {"decade": 2000, "danceability": 0.63, "energy": 0.53, "valence": 0.51, "acousticness": 0.19, "popularity": 19}, {"decade": 2010, "danceability": 0.65, "energy": 0.54, "valence": 0.52, "acousticness": 0.18, "popularity": 29}, {"decade": 2020, "danceability": 0.68, "energy": 0.57, "valence": 0.53, "acousticness": 0.16, "popularity": 32}]},
+            "rock": {"decade_data": [{"decade": 1960, "danceability": 0.52, "energy": 0.42, "valence": 0.45, "acousticness": 0.25, "popularity": 3}, {"decade": 1970, "danceability": 0.55, "energy": 0.46, "valence": 0.47, "acousticness": 0.24, "popularity": 5}, {"decade": 1980, "danceability": 0.58, "energy": 0.51, "valence": 0.49, "acousticness": 0.22, "popularity": 7}, {"decade": 1990, "danceability": 0.61, "energy": 0.54, "valence": 0.50, "acousticness": 0.21, "popularity": 11}, {"decade": 2000, "danceability": 0.62, "energy": 0.55, "valence": 0.51, "acousticness": 0.20, "popularity": 18}, {"decade": 2010, "danceability": 0.63, "energy": 0.56, "valence": 0.52, "acousticness": 0.19, "popularity": 24}, {"decade": 2020, "danceability": 0.64, "energy": 0.58, "valence": 0.52, "acousticness": 0.18, "popularity": 26}]},
+            "hip-hop": {"decade_data": [{"decade": 1980, "danceability": 0.68, "energy": 0.50, "valence": 0.48, "acousticness": 0.18, "popularity": 5}, {"decade": 1990, "danceability": 0.71, "energy": 0.54, "valence": 0.49, "acousticness": 0.16, "popularity": 12}, {"decade": 2000, "danceability": 0.73, "energy": 0.57, "valence": 0.49, "acousticness": 0.15, "popularity": 22}, {"decade": 2010, "danceability": 0.74, "energy": 0.58, "valence": 0.50, "acousticness": 0.14, "popularity": 30}, {"decade": 2020, "danceability": 0.75, "energy": 0.59, "valence": 0.51, "acousticness": 0.13, "popularity": 33}]},
+            "electronic": {"decade_data": [{"decade": 1980, "danceability": 0.72, "energy": 0.55, "valence": 0.50, "acousticness": 0.15, "popularity": 6}, {"decade": 1990, "danceability": 0.75, "energy": 0.58, "valence": 0.51, "acousticness": 0.14, "popularity": 13}, {"decade": 2000, "danceability": 0.77, "energy": 0.60, "valence": 0.52, "acousticness": 0.13, "popularity": 24}, {"decade": 2010, "danceability": 0.78, "energy": 0.61, "valence": 0.52, "acousticness": 0.12, "popularity": 31}, {"decade": 2020, "danceability": 0.79, "energy": 0.62, "valence": 0.53, "acousticness": 0.11, "popularity": 34}]},
+            "classical": {"decade_data": [{"decade": 1960, "danceability": 0.25, "energy": 0.18, "valence": 0.36, "acousticness": 0.55, "popularity": 8}, {"decade": 1970, "danceability": 0.26, "energy": 0.18, "valence": 0.37, "acousticness": 0.54, "popularity": 9}, {"decade": 1980, "danceability": 0.26, "energy": 0.19, "valence": 0.37, "acousticness": 0.52, "popularity": 10}, {"decade": 1990, "danceability": 0.27, "energy": 0.19, "valence": 0.38, "acousticness": 0.51, "popularity": 11}, {"decade": 2000, "danceability": 0.27, "energy": 0.19, "valence": 0.38, "acousticness": 0.50, "popularity": 12}, {"decade": 2010, "danceability": 0.28, "energy": 0.20, "valence": 0.38, "acousticness": 0.49, "popularity": 13}, {"decade": 2020, "danceability": 0.28, "energy": 0.20, "valence": 0.39, "acousticness": 0.48, "popularity": 14}]}
+        };
+
+        const decadeTrendsData = [
+            {"decade":1960,"danceability":0.491,"energy":0.357,"valence":0.461,"acousticness":0.275,"tempo":120.7,"popularity":3.5,"count":54},
+            {"decade":1970,"danceability":0.526,"energy":0.385,"valence":0.449,"acousticness":0.272,"tempo":120.1,"popularity":5.1,"count":80},
+            {"decade":1980,"danceability":0.551,"energy":0.412,"valence":0.485,"acousticness":0.257,"tempo":120.8,"popularity":6.4,"count":165},
+            {"decade":1990,"danceability":0.588,"energy":0.459,"valence":0.489,"acousticness":0.234,"tempo":120.0,"popularity":9.6,"count":376},
+            {"decade":2000,"danceability":0.633,"energy":0.520,"valence":0.489,"acousticness":0.201,"tempo":120.5,"popularity":18.1,"count":1350},
+            {"decade":2010,"danceability":0.656,"energy":0.550,"valence":0.511,"acousticness":0.182,"tempo":119.8,"popularity":27.9,"count":2450},
+            {"decade":2020,"danceability":0.687,"energy":0.583,"valence":0.524,"acousticness":0.156,"tempo":119.6,"popularity":31.1,"count":475}
+        ];
+
+        const genreFeaturesData = [
+            {"genre":"electronic","danceability":0.776,"energy":0.591,"valence":0.511,"acousticness":0.139,"tempo":119.6,"popularity":25.8},
+            {"genre":"hip-hop","danceability":0.732,"energy":0.563,"valence":0.490,"acousticness":0.157,"tempo":119.9,"popularity":24.9},
+            {"genre":"punk","danceability":0.712,"energy":0.565,"valence":0.511,"acousticness":0.089,"tempo":116.7,"popularity":19.7},
+            {"genre":"reggae","danceability":0.683,"energy":0.565,"valence":0.515,"acousticness":0.128,"tempo":115.9,"popularity":23.0},
+            {"genre":"latin","danceability":0.651,"energy":0.531,"valence":0.514,"acousticness":0.190,"tempo":121.1,"popularity":22.6},
+            {"genre":"r&b","danceability":0.641,"energy":0.518,"valence":0.497,"acousticness":0.209,"tempo":120.5,"popularity":21.8},
+            {"genre":"blues","danceability":0.639,"energy":0.478,"valence":0.505,"acousticness":0.231,"tempo":118.1,"popularity":25.3},
+            {"genre":"pop","danceability":0.636,"energy":0.520,"valence":0.505,"acousticness":0.203,"tempo":120.2,"popularity":22.4},
+            {"genre":"metal","danceability":0.628,"energy":0.719,"valence":0.430,"acousticness":0.222,"tempo":118.8,"popularity":17.0},
+            {"genre":"indie","danceability":0.627,"energy":0.512,"valence":0.490,"acousticness":0.221,"tempo":120.2,"popularity":20.8},
+            {"genre":"country","danceability":0.623,"energy":0.500,"valence":0.509,"acousticness":0.251,"tempo":121.2,"popularity":20.0},
+            {"genre":"rock","danceability":0.609,"energy":0.521,"valence":0.499,"acousticness":0.227,"tempo":120.7,"popularity":19.4},
+            {"genre":"folk","danceability":0.608,"energy":0.488,"valence":0.516,"acousticness":0.267,"tempo":120.5,"popularity":22.3},
+            {"genre":"jazz","danceability":0.595,"energy":0.467,"valence":0.448,"acousticness":0.272,"tempo":121.0,"popularity":18.1},
+            {"genre":"classical","danceability":0.270,"energy":0.189,"valence":0.376,"acousticness":0.505,"tempo":122.1,"popularity":12.6}
+        ];
+
+        const genreColors = {
+            'pop': '#ff006e', 'rock': '#8338ec', 'hip-hop': '#ffbe0b', 'electronic': '#00d9ff',
+            'r&b': '#fb5607', 'country': '#ff6b6b', 'jazz': '#4ecdc4', 'classical': '#95a5a6',
+            'indie': '#9b59b6', 'latin': '#e74c3c', 'metal': '#c0392b', 'folk': '#27ae60',
+            'blues': '#3498db', 'reggae': '#f39c12', 'punk': '#e056fd'
+        };
+
+        Chart.defaults.color = '#e8eaf0';
+        Chart.defaults.borderColor = 'rgba(255, 255, 255, 0.1)';
+        Chart.defaults.font.family = 'JetBrains Mono, monospace';
+        Chart.defaults.animation.duration = 750;
+        Chart.defaults.animation.easing = 'easeInOutQuart';
+
+        // Populate genre filter
+        const genreFilter = document.getElementById('genreFilter');
+        const genres = genreFeaturesData.map(d => d.genre).sort();
+        genres.forEach(genre => {
+            const option = document.createElement('option');
+            option.value = genre;
+            option.textContent = genre.charAt(0).toUpperCase() + genre.slice(1);
+            genreFilter.appendChild(option);
+        });
+
+        // Update stats
+        function updateStats(selectedGenre) {
+            let data = genreFeaturesData;
+            if (selectedGenre !== 'all') {
+                data = data.filter(d => d.genre === selectedGenre);
+            }
+            
+            const avgDance = (data.reduce((sum, d) => sum + d.danceability, 0) / data.length).toFixed(3);
+            const avgEnergy = (data.reduce((sum, d) => sum + d.energy, 0) / data.length).toFixed(3);
+            const avgValence = (data.reduce((sum, d) => sum + d.valence, 0) / data.length).toFixed(3);
+            const topGenre = [...data].sort((a, b) => b.popularity - a.popularity)[0].genre;
+            
+            document.getElementById('avgDance').textContent = avgDance;
+            document.getElementById('avgEnergy').textContent = avgEnergy;
+            document.getElementById('avgValence').textContent = avgValence;
+            document.getElementById('topGenre').textContent = topGenre.charAt(0).toUpperCase() + topGenre.slice(1);
+        }
+
+        // Charts
+        let timelineChart, radarChart, genreChart, scatterChart;
+
+        function renderTimelineChart(selectedGenre) {
+            const ctx = document.getElementById('timelineChart').getContext('2d');
+            
+            if (timelineChart) {
+                timelineChart.destroy();
+            }
+
+            // Use genre-specific data if available
+            let data = decadeTrendsData;
+            if (selectedGenre !== 'all' && fullData[selectedGenre]) {
+                data = fullData[selectedGenre].decade_data;
+            }
+
+            const datasets = [
+                {
+                    label: 'Danceability',
+                    data: data.map(d => d.danceability),
+                    borderColor: 'rgba(0, 217, 255, 0.8)',
+                    backgroundColor: 'rgba(0, 217, 255, 0.1)',
+                    tension: 0.4,
+                    borderWidth: 3,
+                    pointRadius: 6,
+                    pointHoverRadius: 8,
+                    fill: true
+                },
+                {
+                    label: 'Energy',
+                    data: data.map(d => d.energy),
+                    borderColor: 'rgba(255, 0, 110, 0.8)',
+                    backgroundColor: 'rgba(255, 0, 110, 0.1)',
+                    tension: 0.4,
+                    borderWidth: 3,
+                    pointRadius: 6,
+                    pointHoverRadius: 8,
+                    fill: true
+                },
+                {
+                    label: 'Valence',
+                    data: data.map(d => d.valence),
+                    borderColor: 'rgba(131, 56, 236, 0.8)',
+                    backgroundColor: 'rgba(131, 56, 236, 0.1)',
+                    tension: 0.4,
+                    borderWidth: 3,
+                    pointRadius: 6,
+                    pointHoverRadius: 8,
+                    fill: true
+                },
+                {
+                    label: 'Acousticness',
+                    data: data.map(d => d.acousticness),
+                    borderColor: 'rgba(255, 190, 11, 0.8)',
+                    backgroundColor: 'rgba(255, 190, 11, 0.1)',
+                    tension: 0.4,
+                    borderWidth: 3,
+                    pointRadius: 6,
+                    pointHoverRadius: 8,
+                    fill: true
+                }
+            ];
+
+            timelineChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: data.map(d => d.decade + 's'),
+                    datasets: datasets
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            labels: {
+                                padding: 20,
+                                font: { size: 12 },
+                                usePointStyle: true,
+                                pointStyle: 'circle'
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(37, 43, 66, 0.95)',
+                            padding: 15,
+                            titleFont: { size: 14 },
+                            bodyFont: { size: 13 },
+                            borderColor: 'rgba(0, 217, 255, 0.3)',
+                            borderWidth: 1,
+                            callbacks: {
+                                label: function(context) {
+                                    return context.dataset.label + ': ' + context.parsed.y.toFixed(3);
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 1,
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.05)'
+                            },
+                            ticks: {
+                                font: { size: 11 }
+                            }
+                        },
+                        x: {
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.05)'
+                            },
+                            ticks: {
+                                font: { size: 11 }
+                            }
+                        }
+                    },
+                    interaction: {
+                        intersect: false,
+                        mode: 'index'
+                    }
+                }
+            });
+        }
+
+        function renderRadarChart(selectedGenre) {
+            const ctx = document.getElementById('radarChart').getContext('2d');
+            
+            if (radarChart) {
+                radarChart.destroy();
+            }
+
+            const genresToShow = selectedGenre === 'all' 
+                ? ['electronic', 'hip-hop', 'metal', 'classical', 'pop']
+                : [selectedGenre];
+
+            const datasets = genresToShow.map(genre => {
+                const data = genreFeaturesData.find(d => d.genre === genre);
+                return {
+                    label: genre.charAt(0).toUpperCase() + genre.slice(1),
+                    data: [
+                        data.danceability,
+                        data.energy,
+                        data.valence,
+                        data.acousticness,
+                        data.tempo / 200
+                    ],
+                    borderColor: genreColors[genre],
+                    backgroundColor: genreColors[genre].replace(')', ', 0.15)').replace('rgb', 'rgba').replace('#', 'rgba(') || 'rgba(0, 217, 255, 0.15)',
+                    borderWidth: 3,
+                    pointBackgroundColor: genreColors[genre],
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 2,
+                    pointRadius: 5,
+                    pointHoverRadius: 7
+                };
+            });
+
+            radarChart = new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: ['Danceability', 'Energy', 'Valence', 'Acousticness', 'Tempo'],
+                    datasets: datasets
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            labels: {
+                                padding: 20,
+                                font: { size: 12 },
+                                usePointStyle: true
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(37, 43, 66, 0.95)',
+                            padding: 15,
+                            borderColor: 'rgba(0, 217, 255, 0.3)',
+                            borderWidth: 1
+                        }
+                    },
+                    scales: {
+                        r: {
+                            beginAtZero: true,
+                            max: 1,
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            },
+                            angleLines: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            },
+                            pointLabels: {
+                                font: { size: 12 }
+                            },
+                            ticks: {
+                                font: { size: 10 },
+                                backdropColor: 'transparent'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function renderGenreChart(selectedMetric) {
+            const ctx = document.getElementById('genreChart').getContext('2d');
+            
+            if (genreChart) {
+                genreChart.destroy();
+            }
+
+            const data = [...genreFeaturesData].sort((a, b) => b[selectedMetric] - a[selectedMetric]);
+
+            genreChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: data.map(d => d.genre.charAt(0).toUpperCase() + d.genre.slice(1)),
+                    datasets: [{
+                        label: selectedMetric.charAt(0).toUpperCase() + selectedMetric.slice(1),
+                        data: data.map(d => d[selectedMetric]),
+                        backgroundColor: data.map(d => genreColors[d.genre] + 'DD'),
+                        borderColor: data.map(d => genreColors[d.genre]),
+                        borderWidth: 2,
+                        borderRadius: 8,
+                        borderSkipped: false
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(37, 43, 66, 0.95)',
+                            padding: 15,
+                            borderColor: 'rgba(0, 217, 255, 0.3)',
+                            borderWidth: 1,
+                            callbacks: {
+                                label: function(context) {
+                                    return selectedMetric.charAt(0).toUpperCase() + selectedMetric.slice(1) + ': ' + context.parsed.x.toFixed(3);
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            max: selectedMetric === 'popularity' ? 30 : 1,
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.05)'
+                            },
+                            ticks: {
+                                font: { size: 11 }
+                            }
+                        },
+                        y: {
+                            grid: {
+                                display: false
+                            },
+                            ticks: {
+                                font: { size: 11 }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function renderScatterChart(selectedGenre) {
+            const ctx = document.getElementById('scatterChart').getContext('2d');
+            
+            if (scatterChart) {
+                scatterChart.destroy();
+            }
+
+            let data = genreFeaturesData;
+            if (selectedGenre !== 'all') {
+                data = data.filter(d => d.genre === selectedGenre);
+            }
+
+            const dataset = {
+                label: 'Genres',
+                data: data.map(d => ({
+                    x: d.energy,
+                    y: d.danceability,
+                    genre: d.genre
+                })),
+                backgroundColor: data.map(d => genreColors[d.genre] + 'CC'),
+                borderColor: data.map(d => genreColors[d.genre]),
+                borderWidth: 2,
+                pointRadius: 10,
+                pointHoverRadius: 15,
+                pointStyle: 'circle'
+            };
+
+            scatterChart = new Chart(ctx, {
+                type: 'scatter',
+                data: {
+                    datasets: [dataset]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(37, 43, 66, 0.95)',
+                            padding: 15,
+                            borderColor: 'rgba(0, 217, 255, 0.3)',
+                            borderWidth: 1,
+                            callbacks: {
+                                title: function(context) {
+                                    return context[0].raw.genre.charAt(0).toUpperCase() + context[0].raw.genre.slice(1);
+                                },
+                                label: function(context) {
+                                    return [
+                                        'Energy: ' + context.parsed.x.toFixed(3),
+                                        'Danceability: ' + context.parsed.y.toFixed(3)
+                                    ];
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Energy',
+                                font: { size: 14 }
+                            },
+                            min: 0,
+                            max: 1,
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.05)'
+                            },
+                            ticks: {
+                                font: { size: 11 }
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Danceability',
+                                font: { size: 14 }
+                            },
+                            min: 0,
+                            max: 1,
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.05)'
+                            },
+                            ticks: {
+                                font: { size: 11 }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Event listeners
+        document.getElementById('genreFilter').addEventListener('change', (e) => {
+            const genre = e.target.value;
+            updateStats(genre);
+            renderTimelineChart(genre);
+            renderRadarChart(genre);
+            renderScatterChart(genre);
+        });
+
+        document.getElementById('metricSelect').addEventListener('change', (e) => {
+            const metric = e.target.value;
+            renderGenreChart(metric);
+        });
+
+        // Initial render
+        updateStats('all');
+        renderTimelineChart('all');
+        renderRadarChart('all');
+        renderGenreChart('danceability');
+        renderScatterChart('all');
+
+        // Resize handler
+        window.addEventListener('resize', () => {
+            const genre = document.getElementById('genreFilter').value;
+            const metric = document.getElementById('metricSelect').value;
+            renderTimelineChart(genre);
+            renderRadarChart(genre);
+            renderGenreChart(metric);
+            renderScatterChart(genre);
+        });
+    </script>
+</body>
+</html>
